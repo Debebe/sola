@@ -2,16 +2,19 @@
 % Please edit documentation in R/scripts.R
 \name{square}
 \alias{square}
-\title{Title - This function squares a number , any number}
+\title{Square a number}
 \usage{
 square(x)
 }
 \arguments{
-\item{x}{inputs to the function}
+\item{x}{A number}
 }
 \value{
-out output from the model
+The square of \code{x}.
 }
 \description{
-Title - This function squares a number , any number
+Square a number
+}
+\examples{
+square(4)
 }

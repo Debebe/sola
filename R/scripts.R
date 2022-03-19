@@ -7,28 +7,36 @@
 #   Install Package:           'Cmd + Shift + B'
 #   Check Package:             'Cmd + Shift + E'
 #   Test Package:              'Cmd + Shift + T'
-#' Title - This function squares a number , any number
-#' @param x inputs to the function
-#' @return out output from the model
+#'  Square a number
+
+#' @param x A number
+#' @return The square of \code{x}.
 #' @export
+#' @examples
+#' square(4)
 square <- function(x) {
   out  <- x^2
   out
 }
 
-#' Title
+#' Logits a number
+#'
 #' @param p proportion
-#' @return logit of a proportion
+#' @return The logit of \code{p}.
 #' @export
+#' @examples
+#' logit(0.4)
+#'
 logit <- function(p) {
   log(p / (1 - p))}
 
 
-#' Title gives 8 times table
+#'  8 times table
 #'
-#' @param x input to the function
-#' @return the product of 8 and another number
+#' @param x An input to the function
+#' @return The eight times  \code{x}.
 #' @export eight_times_table
+#'
 eight_times_table <- function(x){
 out <-8*x
 out

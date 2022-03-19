@@ -2,7 +2,7 @@
 % Please edit documentation in R/scripts.R
 \name{logit}
 \alias{logit}
-\title{Title}
+\title{Logits a number}
 \usage{
 logit(p)
 }
@@ -10,8 +10,12 @@ logit(p)
 \item{p}{proportion}
 }
 \value{
-logit of a proportion
+The logit of \code{p}.
 }
 \description{
-Title
+Logits a number
+}
+\examples{
+logit(0.4)
+
 }
