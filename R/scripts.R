@@ -10,6 +10,7 @@
 #'  Square a number
 
 #' @param x A number
+#'
 #' @return The square of \code{x}.
 #' @export
 #' @examples
@@ -22,6 +23,7 @@ square <- function(x) {
 #' Logits a number
 #'
 #' @param p proportion
+#'
 #' @return The logit of \code{p}.
 #' @export
 #' @examples
@@ -34,6 +36,7 @@ logit <- function(p) {
 #'  8 times table
 #'
 #' @param x An input to the function
+#'
 #' @return The eight times  \code{x}.
 #' @export eight_times_table
 #'
