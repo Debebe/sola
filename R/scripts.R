@@ -44,3 +44,46 @@ eight_times_table <- function(x){
 out <-8*x
 out
 }
+
+
+
+#' Converts 95% confidence interval to lognormal distribution
+#'
+#' @param lowerCI  A lower bound of 95% confidence interval
+#' @param upperCI  Upper bound of 95% confidence interval
+#' @param mu       Mean of confidence interval
+#'
+#' @return Mean and sd of lognormal distribution
+#' @export
+#'
+#' @examples
+#' logNormal(0.02, 0.013, 0.035)
+
+logNormal <- function (mu, lowerCI, upperCI) {
+  sd <- (upperCI-lowerCI)/3.92
+  # logNorm
+
+  mean_lognorm  <- log(mu^2 / sqrt(sd^2 + mu^2))
+  sd_lognorm    <- sqrt(log(1 + (sd^2 / mu^2)))
+  return(params = list(mean_lognorm=mean_lognorm ,sd_lognorm=sd_lognorm))
+}
+
+
+#' Generates beta prior from 95% Confidence interval
+#'
+#' @param mu      Mean of confidence interval
+#' @param lower  Upper bound of 95% confidence interval
+#' @param upper  Upper bound of 95% confidence interval
+#'
+#' @return Renders parameters of beta prior distribution
+#' @export
+#'
+#' @examples
+#' BetaParams(mu=0.5, lower=0.35, upper=0.72)
+BetaParams <- function(mu, lower, upper) {
+  sd<- (upper-lower)/3.92
+  alpha <- ((1 - mu) / sd^2 - 1 / mu) * mu ^ 2
+  beta  <- alpha * (1 / mu - 1)
+  return(params = list(alpha = alpha, beta = beta))
+}
+
