@@ -2,16 +2,16 @@
 % Please edit documentation in R/scripts.R
 \name{eight_times_table}
 \alias{eight_times_table}
-\title{Title gives 8 times table}
+\title{8 times table}
 \usage{
 eight_times_table(x)
 }
 \arguments{
-\item{x}{input to the function}
+\item{x}{An input to the function}
 }
 \value{
-the product of 8 and another number
+The eight times  \code{x}.
 }
 \description{
-Title gives 8 times table
+8 times table
 }

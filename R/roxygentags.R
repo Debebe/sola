@@ -5,5 +5,6 @@
 #'
 #' @useDynLib MI00
 #' @useDynLib MI01
+#' @useDynLib vls
 #'
 NULL
