@@ -1,0 +1,9 @@
+all: MI00.dll MI01.dll
+	# Comment here preserves the prior tab
+MI00.dll: MI00.cpp
+	Rscript --vanilla -e "TMB::compile('MI00.cpp', '-O1 -g',DLLFLAGS='')"
+MI01.dll: MIO1.cpp
+	Rscript --vanilla -e "TMB::compile('MI01.cpp', '-O1 -g',DLLFLAGS='')"
+
+clean:
+	rm -rf *.dll
