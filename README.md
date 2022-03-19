@@ -1,17 +1,7 @@
-cookiecutter-r-package
+sola package- helper functions 
 
-A template for a basic R package including:
+Installation
+The package is not available from CRAN. Instead, the latest version (of this Github repo) may be installed by running the following code from R.
 
-our usual lintr template
-github workflows for check (4 platforms), coverage and pkgdown
-docker container built on buildkite
-R and git ignore files
-The resulting R package should pass R CMD check with no notes, warnings or errors, though you will want to update the metadata in DESCRIPTION.
-
-Instructions
-
-To create a new project run the following (no need to clone this repo first):
-
-pip install cookiecutter
-cookiecutter gh:reside-ic/cookiecutter-r-package
-Then move the new folder somewhere, push it to GitHub and start developing
+# install.packages("devtools") # Uncomment this line if devtools is not yet installed
+devtools::install_github("Debebe/sola")
