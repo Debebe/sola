@@ -13,7 +13,8 @@ Imports:
       data.table, 
       TMB, 
       ggplot2,
-      dplyr
+      dplyr,
+      Zoo
 Suggests: 
     knitr,
     rmarkdown
