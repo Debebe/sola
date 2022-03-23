@@ -87,3 +87,34 @@ BetaParams <- function(mu, lower, upper) {
   return(params = list(alpha = alpha, beta = beta))
 }
 
+
+#' Function to conduct  logistic population interpolation at time points with missing data.
+#'
+#' @param population_age_sex data frame containing space, age, sex, year stratified data
+#'
+#' @return  data frame with imputed (interpolated data)
+#' @export
+#'
+#' @examples
+#' interpolate_population_agesex(naomi::demo_population_agesex)
+
+interpolate_population_agesex <- function(population_age_sex){
+
+    if(!"population" %in% colnames(population_age_sex)){
+      stop(paste0("population is missing… consider changing variable names in the data"))
+    }
+    pop_imputed <- population_age_sex %>%
+      arrange(area_id, area_name, area_level,sex, age_group, year) %>%
+      group_by(area_id, area_name, area_level,sex, age_group) %>%
+      mutate(art_current_interpolated = exp(zoo::na.approx(log(population), x = year,
+                                                           rule = 2, na.rm = FALSE)))%>%
+      ungroup()
+
+     return(pop_imputed)
+
+  }
+
+  #pop_interpolated <- interpolate_population_agesex(tmp)
+
+
+
