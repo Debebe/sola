@@ -14,7 +14,7 @@ Imports:
       TMB, 
       ggplot2,
       dplyr,
-      Zoo
+      zoo
 Suggests: 
     knitr,
     rmarkdown
