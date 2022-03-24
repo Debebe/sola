@@ -98,7 +98,7 @@ BetaParams <- function(mu, lower, upper) {
 #' @examples
 #' interpolate_population_agesex(naomi::demo_population_agesex)
 
-logistic_pop_agesex_interpolation <- function(population_age_sex){
+log_linear_pop_agesex_interpolation <- function(population_age_sex){
 
     if(!"population" %in% colnames(population_age_sex)){
       stop(paste0("population is missing… consider changing variable names in the data"))
