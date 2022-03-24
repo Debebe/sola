@@ -3,7 +3,7 @@
 export(BetaParams)
 export(eight_times_table)
 export(logNormal)
-export(logistic_pop_agesex_interpolation)
+export(log_linear_pop_agesex_interpolation)
 export(logit)
 export(square)
 useDynLib(MI00)

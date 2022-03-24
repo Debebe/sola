@@ -96,7 +96,7 @@ BetaParams <- function(mu, lower, upper) {
 #' @export
 #'
 #' @examples
-#' interpolate_population_agesex(naomi::demo_population_agesex)
+#' log_linear_pop_agesex_interpolation(naomi::demo_population_agesex)
 
 log_linear_pop_agesex_interpolation <- function(population_age_sex){
 
