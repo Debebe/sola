@@ -106,8 +106,12 @@ logistic_pop_agesex_interpolation <- function(population_age_sex){
     pop_imputed <- population_age_sex %>%
       arrange(area_id, area_name, area_level,sex, age_group, year) %>%
       group_by(area_id, area_name, area_level,sex, age_group) %>%
+      # logistic interpolation
       mutate(art_current_interpolated = exp(zoo::na.approx(log(population), x = year,
                                                            rule = 2, na.rm = FALSE)))%>%
+      # linear interpolation
+      # mutate(art_current_interpolated = zoo::na.approx(population, x = year,
+      #                                                      rule = 2, na.rm = FALSE)))%>%
       ungroup()
 
      return(pop_imputed)
