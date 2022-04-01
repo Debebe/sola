@@ -120,5 +120,15 @@ log_linear_pop_agesex_interpolation <- function(population_age_sex){
 
   #pop_interpolated <- interpolate_population_agesex(tmp)
 
-
+#' Convert list into a data.frame
+#'
+#' @param list A list
+#'
+#' @return A dataframe.
+#' @export
+#'
+#' @examples
+list_to_df <- function(list){
+  data.frame(dplyr::bind_rows(list, .id = "replicate"))
+}
 
