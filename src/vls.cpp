@@ -355,7 +355,7 @@ Type objective_function<Type>::operator() ()
   for (int i = 0; i < obs_idx.size(); i++) {           // index to complete data
 
     //val -= dbinom(Y[i], N[i], prevalence[i], true);    //
-    val -= dbinom(Y[obs_idx[i]], N[obs_idx[i]], prevalence[obs_idx[i]], true)
+    val -= dbinom(Y[obs_idx[i]], N[obs_idx[i]], prevalence[obs_idx[i]], true);
   }
 
   REPORT(beta);
