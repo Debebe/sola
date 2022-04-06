@@ -19,6 +19,14 @@ template<class Type>
       return(val);
   }
 
+
+  // Function for detecting NAs
+  template<class Type>
+  bool isNA(Type x){
+    return R_IsNA(asDouble(x));
+  }
+
+
 template<class Type>
 Type objective_function<Type>::operator() ()
 {
@@ -26,7 +34,7 @@ Type objective_function<Type>::operator() ()
   DATA_VECTOR(Y);
   DATA_VECTOR(N);
   DATA_MATRIX(X);
-  DATA_IVECTOR(obs_idx);                          // !Index to data with no NAs
+  //DATA_IVECTOR(obs_idx);                          // !Index to data with no NAs
 
   DATA_SPARSE_MATRIX(Q_space);
   DATA_SPARSE_MATRIX(Z_space);
@@ -352,10 +360,14 @@ Type objective_function<Type>::operator() ()
                   Z_space_sex_time * u_space_sex_time);
 
   vector <Type> prevalence(invlogit(mu));
-  for (int i = 0; i < obs_idx.size(); i++) {           // index to complete data
 
-    //val -= dbinom(Y[i], N[i], prevalence[i], true);    //
-    val -= dbinom(Y[obs_idx[i]], N[obs_idx[i]], prevalence[obs_idx[i]], true);
+  // for (int i = 0; i < obs_idx.size(); i++) {              // index to complete data
+  //   // val -= dbinom(Y[i], N[i], prevalence[i], true);      //
+  //    // val -= dbinom(Y[obs_idx[i]], N[obs_idx[i]], prevalence[obs_idx[i]], true);
+  // }
+
+  for( int i=0; i<Y.size(); i++){
+    if( !isNA(Y(i)) ) val -= dbinom(Y[i], N[i], prevalence[i], true);      //
   }
 
   REPORT(beta);
