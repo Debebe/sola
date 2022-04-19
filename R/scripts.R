@@ -163,3 +163,23 @@ moran_clusters <- function(data, sf_object){
 }
 
 #moran_clusters(data$chNotifRate, NorthShowa_sf)
+
+#' Title
+#'
+#' @param data a numeric vector the same length as the neighbours list in sf object
+#' @param sf_object spatial data as sf class
+#'
+#' @return Global moran value with p-value
+#' @export
+#'
+#' @examples
+global_moranI <- function(data, sf_object){
+    globalMoran <- spdep::moran.test(data, listw)
+    global_moran_est <- globalMoran[["estimate"]][["Moran I statistic"]]
+    global_moran_pval <- globalMoran[["p.value"]]
+
+return(list(global_moran_estimate=global_moran_est,
+            global_moran_pval= global_moran_pval))
+}
+
+#global_moranI(data$chNotifRate, NorthShowa)
