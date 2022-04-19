@@ -132,3 +132,34 @@ list_to_df <- function(list){
   data.frame(dplyr::bind_rows(list, .id = "replicate"))
 }
 
+#' Title
+#'
+#' @param data vector that records data inputs from all areal units
+#' @param sf_object shape file in sf class
+#'
+#' @return ggplot of clusters
+#' @export
+#'
+#' @examples
+moran_clusters <- function(data, sf_object){
+
+  neighbours_sf <- spdep::poly2nb(sf_object)   # adjacency matrix from sf
+  #listw <- nb2listw(neighbours_sf)      # weights matrix
+
+  local <- spdep::localmoran(x = data, listw = nb2listw(neighbours_sf, style = "W"))
+  clusters <-as.data.frame(attr(local,"quadr"))
+
+  moran.map <- cbind(sf_object, local,clusters )%>%
+    dplyr::rename(cluster=mean)
+
+  gg <-ggplot2::ggplot(data = moran.map) +
+    sf::geom_sf(aes(fill = cluster)) +
+    scale_fill_viridis_d(option = "plasma")+theme_minimal()+
+    theme(axis.ticks = element_blank(),
+          axis.text = element_blank())
+
+  gg
+
+}
+
+#moran_clusters(data$chNotifRate, NorthShowa_sf)
