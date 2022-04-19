@@ -2,9 +2,12 @@
 
 export(BetaParams)
 export(eight_times_table)
+export(global_moranI)
+export(list_to_df)
 export(logNormal)
 export(log_linear_pop_agesex_interpolation)
 export(logit)
+export(moran_clusters)
 export(square)
 useDynLib(MI00)
 useDynLib(MI01)
