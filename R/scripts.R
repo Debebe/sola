@@ -174,6 +174,9 @@ moran_clusters <- function(data, sf_object){
 #'
 #' @examples
 global_moranI <- function(data, sf_object){
+    neighbours_sf <- spdep::poly2nb(sf_object)   # adjacency matrix from sf
+    listw <- spdep::nb2listw(neighbours_sf)      # weights matrix
+
     globalMoran <- spdep::moran.test(data, listw)
     global_moran_est <- globalMoran[["estimate"]][["Moran I statistic"]]
     global_moran_pval <- globalMoran[["p.value"]]
