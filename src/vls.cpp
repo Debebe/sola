@@ -34,7 +34,7 @@ Type objective_function<Type>::operator() ()
   DATA_VECTOR(Y);
   DATA_VECTOR(N);
   DATA_MATRIX(X);
-  DATA_IVECTOR(obs_idx);                          // !Index to data with no NAs
+  // DATA_IVECTOR(obs_idx);                          // !Index to data with no NAs
 
   DATA_SPARSE_MATRIX(Q_space);
   DATA_SPARSE_MATRIX(Z_space);
@@ -361,14 +361,15 @@ Type objective_function<Type>::operator() ()
 
   vector <Type> prevalence(invlogit(mu));
 
-  for (int i = 0; i < obs_idx.size(); i++) {                                   // index to complete data
-     val -= dbinom(Y[obs_idx[i]], N[obs_idx[i]], prevalence[obs_idx[i]], true);
-  }
+  // for (int i = 0; i < obs_idx.size(); i++) {                                   // index to complete data
+  //    val -= dbinom(Y[obs_idx[i]], N[obs_idx[i]], prevalence[obs_idx[i]], true);
+  // }
+  
   // This one is also works- but if using the following comment out obs_idx in the data declaration section
 
-  // for( int i=0; i<Y.size(); i++){
-  //   if( !isNA(Y(i)) ) val -= dbinom(Y[i], N[i], prevalence[i], true);      //
-  // }
+  for( int i=0; i<Y.size(); i++){
+    if( !isNA(Y(i)) ) val -= dbinom(Y[i], N[i], prevalence[i], true);      //
+  }
 
 
   REPORT(beta);
