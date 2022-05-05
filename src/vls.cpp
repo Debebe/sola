@@ -370,8 +370,11 @@ Type objective_function<Type>::operator() ()
   //   if( !isNA(Y(i)) ) val -= dbinom(Y[i], N[i], prevalence[i], true);      //
   // }
 
+  vector <Type> predicted_counts(prevalence*N);
+
   REPORT(beta);
   REPORT(prevalence);
+  REPORT(predicted_counts)
   ADREPORT(prevalence);
   ADREPORT(mu);
 
