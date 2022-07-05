@@ -186,3 +186,21 @@ return(list(global_moran_estimate=global_moran_est,
 }
 
 #global_moranI(data$chNotifRate, NorthShowa)
+
+
+#' Title Uses labels as variable names
+#'
+#' @param data Data to be cleaned
+#'
+#' @return Data with cleaned colnames
+#' @export
+#'
+#' @examples
+clean_colnames   <- function(data){
+  data_colnames  <- colnames(sjlabelled::label_to_colnames(data))
+  colnames(data) <- data_colnames
+  data <- janitor::clean_names(data)
+  return(data)
+
+}
+
