@@ -90,7 +90,7 @@ Type objective_function<Type>::operator() ()
   }
 
   // anc model- likelihood
-  vector<Type> mu_anc(X*beta_hiv + Z_space *b_anc);
+  vector<Type> mu_anc(X*beta_anc + Z_space *b_anc);
   vector <Type> prevalence_anc(invlogit(mu_anc));
 
   //val -= dbinom(anc_private, anc_attended, prevalence_anc, true).sum();
