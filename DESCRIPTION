@@ -8,7 +8,7 @@ Description: The package will hold several helper functions and compiles TMB cod
 License: GPL-2
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Imports: 
       data.table, 
       TMB, 
