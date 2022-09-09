@@ -28,6 +28,9 @@ Type objective_function<Type>::operator() ()
   DATA_VECTOR(anc_private);
   DATA_VECTOR(anc_attended);
   DATA_MATRIX(X);
+  DATA_IVECTOR(anc_obs_idx);                          // !Index to data with no NAs
+  DATA_IVECTOR(hiv_obs_idx);                          // !Index to data with no NAs
+
 
   DATA_SPARSE_MATRIX(Q_space);
   DATA_SPARSE_MATRIX(Z_space);
@@ -79,17 +82,21 @@ Type objective_function<Type>::operator() ()
   // hiv model -likelihood
 
   vector<Type> mu_hiv(X*beta_hiv + Z_space *b_hiv);
-
   vector <Type> prevalence_hiv(invlogit(mu_hiv));
-  val -= dbinom(hiv_positive, hiv_tested, prevalence_hiv, true).sum();
+  //val -= dbinom(hiv_positive, hiv_tested, prevalence_hiv, true).sum();
 
+  for (int i = 0; i < hiv_obs_idx.size(); i++) {                                   // index to exclude 0 number tested
+     val -= dbinom(hiv_positive[hiv_obs_idx[i]], hiv_tested[hiv_obs_idx[i]], prevalence_hiv[hiv_obs_idx[i]], true);
+  }
 
   // anc model- likelihood
   vector<Type> mu_anc(X*beta_hiv + Z_space *b_anc);
-
   vector <Type> prevalence_anc(invlogit(mu_anc));
-  val -= dbinom(anc_private, anc_attended, prevalence_anc, true).sum();
 
+  //val -= dbinom(anc_private, anc_attended, prevalence_anc, true).sum();
+  for (int i = 0; i < anc_obs_idx.size(); i++) {                                   // index to exclude 0 districts with 0 anc attendance (denom)
+     val -= dbinom(anc_private[anc_obs_idx[i]], anc_attended[anc_obs_idx[i]], prevalence_anc[anc_obs_idx[i]], true);
+  }
 
   REPORT(beta_hiv);
   REPORT(beta_anc);
