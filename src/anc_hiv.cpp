@@ -33,7 +33,8 @@ Type objective_function<Type>::operator() ()
 
 
   DATA_SPARSE_MATRIX(Q_space);
-  DATA_SPARSE_MATRIX(Z_space);
+  DATA_SPARSE_MATRIX(Z_space_hiv);
+  DATA_SPARSE_MATRIX(Z_space_anc);
 
 
   Type val(0);
@@ -81,7 +82,7 @@ Type objective_function<Type>::operator() ()
 
   // hiv model -likelihood
 
-  vector<Type> mu_hiv(X*beta_hiv + Z_space *b_hiv);
+  vector<Type> mu_hiv(X*beta_hiv + Z_space_hiv *b_hiv);
   vector <Type> prevalence_hiv(invlogit(mu_hiv));
   //val -= dbinom(hiv_positive, hiv_tested, prevalence_hiv, true).sum();
 
@@ -90,7 +91,7 @@ Type objective_function<Type>::operator() ()
   }
 
   // anc model- likelihood
-  vector<Type> mu_anc(X*beta_anc + Z_space *b_anc);
+  vector<Type> mu_anc(X*beta_anc + Z_space_anc *b_anc);
   vector <Type> prevalence_anc(invlogit(mu_anc));
 
   //val -= dbinom(anc_private, anc_attended, prevalence_anc, true).sum();
