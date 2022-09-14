@@ -35,6 +35,8 @@ Type objective_function<Type>::operator() ()
   DATA_SPARSE_MATRIX(Q_space);
   DATA_SPARSE_MATRIX(Z_space_hiv);
   DATA_SPARSE_MATRIX(Z_space_anc);
+  DATA_SPARSE_MATRIX(Z_space_race);          // space race interaction // n_obs by  n_space
+
 
 
   Type val(0);
@@ -80,9 +82,34 @@ Type objective_function<Type>::operator() ()
   val -= bym2_conditional_lpdf(b_anc, u_anc, sigma_space_anc, phi_space_anc, Q_space);
 
 
+
+  ///////////////////////////////////////////////////////
+  /////////   ICAR-sex(fixed) -interaction   ////////////
+  ///////////////////////////////////////////////////////
+
+  PARAMETER(log_sigma_space_race);
+  PARAMETER_VECTOR(u_space_race);
+
+  Type sigma_space_race(exp(log_sigma_space_race));
+  val -= dnorm(sigma_space_race, Type(0.0), Type(2.5), true) + log_sigma_space_race;
+
+  if(u_space_race.size() > 0)
+    val += SCALE(GMRF(Q_space), sigma_space_race)(u_space_race);
+
+  /*pay attention here*/
+  // sum-to-zero- constraint on interaction term
+  for (int i = 0; i < u_space_race.cols(); i++) {
+    val -= dnorm(u_space_race.col(i).sum(), Type(0), Type(0.001) * u_space_race.rows(), true);
+  }
+
+
+
   // hiv model -likelihood
 
-  vector<Type> mu_hiv(X*beta_hiv + Z_space_hiv *b_hiv);
+  vector<Type> mu_hiv(X*beta_hiv +
+                      Z_space_hiv *b_hiv +
+                      Z_space_race * u_space_race);
+
   vector <Type> prevalence_hiv(invlogit(mu_hiv));
   //val -= dbinom(hiv_positive, hiv_tested, prevalence_hiv, true).sum();
 
