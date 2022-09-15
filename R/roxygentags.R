@@ -7,5 +7,6 @@
 #' @useDynLib MI01
 #' @useDynLib vls
 #' @useDynLib anc_hiv
+#' @useDynLib hiv_anc
 #'
 NULL
