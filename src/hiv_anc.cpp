@@ -50,9 +50,9 @@ template<class Type>
   PARAMETER_VECTOR(u_hiv);
 
   //••••Space-BYM2- anc model•••••//
-    PARAMETER(log_sigma_space_anc);                                                   // marginal standard deviation
+    PARAMETER(log_sigma_space_anc);                                               // marginal standard deviation
   PARAMETER(logit_phi_space_anc);
-  PARAMETER_VECTOR(b_anc);                                                          // combined spatial effect
+  PARAMETER_VECTOR(b_anc);                                                        // combined spatial effect
   PARAMETER_VECTOR(u_anc);
 
 
