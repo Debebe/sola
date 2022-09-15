@@ -364,7 +364,7 @@ Type objective_function<Type>::operator() ()
   for (int i = 0; i < obs_idx.size(); i++) {                                   // index to complete data
      val -= dbinom(Y[obs_idx[i]], N[obs_idx[i]], prevalence[obs_idx[i]], true);
   }
-  
+
   // This one is also works- but if using the following comment out obs_idx in the data declaration section
 
   // for( int i=0; i<Y.size(); i++){
