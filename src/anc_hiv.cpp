@@ -27,7 +27,11 @@ Type objective_function<Type>::operator() ()
   DATA_VECTOR(hiv_tested);
   DATA_VECTOR(anc_private);
   DATA_VECTOR(anc_attended);
-  DATA_MATRIX(X);
+
+  DATA_MATRIX(X);      //hiv prev predictor
+  DATA_MATRIX(Xanc);   //anc_place predictor
+
+
   DATA_IVECTOR(anc_obs_idx);                          // !Index to data with no NAs
   DATA_IVECTOR(hiv_obs_idx);                          // !Index to data with no NAs
 
@@ -35,9 +39,13 @@ Type objective_function<Type>::operator() ()
   DATA_SPARSE_MATRIX(Q_space);
   DATA_SPARSE_MATRIX(Z_space_hiv);
   DATA_SPARSE_MATRIX(Z_space_anc);
-  DATA_SPARSE_MATRIX(Z_space_race);          // space race interaction // n_obs by  n_space
-  DATA_SPARSE_MATRIX(R_race);
+  //hiv model
+  DATA_SPARSE_MATRIX(Z_space_race_hiv);               // space race interaction // n_obs by  n_space
+  DATA_SPARSE_MATRIX(R_race_hiv);
 
+  //anc model
+  DATA_SPARSE_MATRIX(Z_space_race_anc);              // space race interaction // n_obs by  n_space
+  DATA_SPARSE_MATRIX(R_race_anc);
 
 
   Type val(0);
@@ -85,22 +93,41 @@ Type objective_function<Type>::operator() ()
 
 
   ///////////////////////////////////////////////////////
-  /////////   ICAR-race(fixed) -interaction   ////////////
+  /////////   ICAR-race(fixed) -interaction -hiv model  ////////////
   ///////////////////////////////////////////////////////
 
-  PARAMETER(log_sigma_space_race);
-  PARAMETER_ARRAY(u_raw_space_race);
+  PARAMETER(log_sigma_space_race_hiv);
+  PARAMETER_ARRAY(u_raw_space_race_hiv);
 
-  Type sigma_space_race(exp(log_sigma_space_race));
-  val -= dnorm(sigma_space_race, Type(0.0), Type(2.5), true) + log_sigma_space_race;
+  Type sigma_space_race_hiv(exp(log_sigma_space_race_hiv));
+  val -= dnorm(sigma_space_race_hiv, Type(0.0), Type(2.5), true) + log_sigma_space_race_hiv;
 
-  vector<Type> u_space_race(u_raw_space_race * sigma_space_race);
-  if(u_raw_space_race.size() > 0)
-    val += SEPARABLE(GMRF(R_race), GMRF(Q_space))(u_raw_space_race);
+  vector<Type> u_space_race_hiv(u_raw_space_race_hiv * sigma_space_race_hiv);
+  if(u_raw_space_race_hiv.size() > 0)
+    val += SEPARABLE(GMRF(R_race_hiv), GMRF(Q_space))(u_raw_space_race_hiv);
 
   //sum-to-zero- constraint on interaction term
-  for (int i = 0; i < u_raw_space_race.cols(); i++) {
-    val -= dnorm(u_raw_space_race.col(i).sum(), Type(0), Type(0.001) * u_raw_space_race.col(i).size(), true);
+  for (int i = 0; i < u_raw_space_race_hiv.cols(); i++) {
+    val -= dnorm(u_raw_space_race_hiv.col(i).sum(), Type(0), Type(0.001) * u_raw_space_race_hiv.col(i).size(), true);
+  }
+
+  ///////////////////////////////////////////////////////
+  /////////   space(ICAR)-race -interaction-anc model////////////
+  ///////////////////////////////////////////////////////
+
+  PARAMETER(log_sigma_space_race_anc);
+  PARAMETER_ARRAY(u_raw_space_race_anc);
+
+  Type sigma_space_race_anc(exp(log_sigma_space_race_anc));
+  val -= dnorm(sigma_space_race_anc, Type(0.0), Type(2.5), true) + log_sigma_space_race_anc;
+
+  vector<Type> u_space_race_anc(u_raw_space_race_anc * sigma_space_race_anc);
+  if(u_raw_space_race_anc.size() > 0)
+    val += SEPARABLE(GMRF(R_race_anc), GMRF(Q_space))(u_raw_space_race_anc);
+
+  //sum-to-zero- constraint on interaction term
+  for (int i = 0; i < u_raw_space_race_anc.cols(); i++) {
+    val -= dnorm(u_raw_space_race_anc.col(i).sum(), Type(0), Type(0.001) * u_raw_space_race_anc.col(i).size(), true);
   }
 
 
@@ -108,7 +135,7 @@ Type objective_function<Type>::operator() ()
 
   vector<Type> mu_hiv(X*beta_hiv +
                       Z_space_hiv * b_hiv +
-                      Z_space_race * u_space_race);
+                      Z_space_race_hiv * u_space_race_hiv);
 
   vector <Type> prevalence_hiv(invlogit(mu_hiv));
 
@@ -117,10 +144,12 @@ Type objective_function<Type>::operator() ()
   }
 
   // anc model- likelihood
-  vector<Type> mu_anc(X*beta_anc + Z_space_anc *b_anc);
+  vector<Type> mu_anc(Xanc*beta_anc +
+                      Z_space_anc *b_anc +
+                      Z_space_race_anc * u_space_race_anc);
   vector <Type> prevalence_anc(invlogit(mu_anc));
 
-  for (int i = 0; i < anc_obs_idx.size(); i++) {                                   // index to exclude 0 districts with 0 anc attendance (denom)
+  for (int i = 0; i < anc_obs_idx.size(); i++) {                                   // index to exclude districts with 0|NA anc attendance (denom)
      val -= dbinom(anc_private[anc_obs_idx[i]], anc_attended[anc_obs_idx[i]], prevalence_anc[anc_obs_idx[i]], true);
   }
 
@@ -135,7 +164,8 @@ Type objective_function<Type>::operator() ()
 
   REPORT(b_hiv);
   REPORT(b_anc);
-  REPORT(u_raw_space_race);
+  REPORT(u_raw_space_race_hiv);
+  REPORT(u_raw_space_race_anc);
 
 
   ADREPORT(b_hiv);
