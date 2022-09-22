@@ -25,20 +25,31 @@ Type objective_function<Type>::operator() ()
   using namespace density;
   DATA_VECTOR(hiv_positive);
   DATA_VECTOR(hiv_tested);
+
   DATA_VECTOR(anc_private);
   DATA_VECTOR(anc_attended);
+
+  DATA_VECTOR(non_pregnant);
+  DATA_VECTOR(all_women);
 
   DATA_MATRIX(X);      //hiv prev predictor
   DATA_MATRIX(Xanc);   //anc_place predictor
 
+  DATA_MATRIX(Xpreg);   //anc_place predictor
+
+
 
   DATA_IVECTOR(anc_obs_idx);                          // !Index to data with no NAs
   DATA_IVECTOR(hiv_obs_idx);                          // !Index to data with no NAs
+  DATA_IVECTOR(preg_obs_idx);                          // !Index to data with no NAs
+
 
 
   DATA_SPARSE_MATRIX(Q_space);
   DATA_SPARSE_MATRIX(Z_space_hiv);
   DATA_SPARSE_MATRIX(Z_space_anc);
+  DATA_SPARSE_MATRIX(Z_space_preg);
+
   //hiv model
   DATA_SPARSE_MATRIX(Z_space_race_hiv);               // space race interaction // n_obs by  n_space
   DATA_SPARSE_MATRIX(R_race_hiv);
@@ -47,10 +58,16 @@ Type objective_function<Type>::operator() ()
   DATA_SPARSE_MATRIX(Z_space_race_anc);              // space race interaction // n_obs by  n_space
   DATA_SPARSE_MATRIX(R_race_anc);
 
+  //preg model
+  DATA_SPARSE_MATRIX(Z_space_race_preg);              // space race interaction // n_obs by  n_space
+  DATA_SPARSE_MATRIX(R_race_preg);
+
 
   Type val(0);
   PARAMETER_VECTOR(beta_hiv);
   PARAMETER_VECTOR(beta_anc);
+  PARAMETER_VECTOR(beta_preg);
+
 
 
   //••••Space-BYM2- hiv model•••••//
@@ -64,6 +81,12 @@ Type objective_function<Type>::operator() ()
   PARAMETER(logit_phi_space_anc);
   PARAMETER_VECTOR(b_anc);                                                          // combined spatial effect
   PARAMETER_VECTOR(u_anc);
+
+  //••••Space-BYM2- preg model•••••//
+  PARAMETER(log_sigma_space_preg);                                                   // marginal standard deviation
+  PARAMETER(logit_phi_space_preg);
+  PARAMETER_VECTOR(b_preg);                                                          // combined spatial effect
+  PARAMETER_VECTOR(u_preg);
 
 
     //hiv-model- latent effect
@@ -90,6 +113,19 @@ Type objective_function<Type>::operator() ()
   val -= dnorm(sum(b_anc), Type(0.0), Type(0.001) * b_anc.size(), true);                // soft sum-to-zero constraint
   val -= bym2_conditional_lpdf(b_anc, u_anc, sigma_space_anc, phi_space_anc, Q_space);
 
+
+
+
+  //preg-model-latent effect
+    Type sigma_space_preg(exp(log_sigma_space_preg));
+    val -= dnorm(sigma_space_preg, Type(0.0), Type(1.0), true) + log_sigma_space_preg;      // log_sigma: log-absolute Jacobian of exp(log_sigma)
+
+    Type phi_space_preg(invlogit(logit_phi_space_preg));
+    val -= log(phi_space_preg) +  log(1 - phi_space_preg);                                  // change of variables: logit_phi -> phi
+    val -= dbeta(phi_space_preg, Type(0.5), Type(0.5), true);
+
+    val -= dnorm(sum(b_preg), Type(0.0), Type(0.001) * b_preg.size(), true);                // soft sum-to-zero constraint
+    val -= bym2_conditional_lpdf(b_preg, u_preg, sigma_space_preg, phi_space_preg, Q_space);
 
 
   ///////////////////////////////////////////////////////
@@ -131,6 +167,27 @@ Type objective_function<Type>::operator() ()
   }
 
 
+  ///////////////////////////////////////////////////////
+  /////////   space(ICAR)-race -interaction-preg model////////////
+  ///////////////////////////////////////////////////////
+
+  PARAMETER(log_sigma_space_race_preg);
+  PARAMETER_ARRAY(u_raw_space_race_preg);
+
+  Type sigma_space_race_preg(exp(log_sigma_space_race_preg));
+  val -= dnorm(sigma_space_race_preg, Type(0.0), Type(2.5), true) + log_sigma_space_race_preg;
+
+  vector<Type> u_space_race_preg(u_raw_space_race_preg * sigma_space_race_preg);
+  if(u_raw_space_race_preg.size() > 0)
+    val += SEPARABLE(GMRF(R_race_preg), GMRF(Q_space))(u_raw_space_race_preg);
+
+  //sum-to-zero- constraint on interaction term
+  for (int i = 0; i < u_raw_space_race_preg.cols(); i++) {
+    val -= dnorm(u_raw_space_race_preg.col(i).sum(), Type(0), Type(0.001) * u_raw_space_race_preg.col(i).size(), true);
+  }
+
+
+
   // hiv model -likelihood
 
   vector<Type> mu_hiv(X*beta_hiv +
@@ -153,22 +210,34 @@ Type objective_function<Type>::operator() ()
      val -= dbinom(anc_private[anc_obs_idx[i]], anc_attended[anc_obs_idx[i]], prevalence_anc[anc_obs_idx[i]], true);
   }
 
+
+    // preg model- likelihood
+    vector<Type> mu_preg(Xpreg*beta_preg +
+                        Z_space_preg *b_preg +
+                        Z_space_race_preg * u_space_race_preg);
+    vector <Type> prevalence_preg(invlogit(mu_preg));
+
+    for (int i = 0; i < anc_obs_idx.size(); i++) {                                   // index to exclude districts with 0|NA anc attendance (denom)
+       val -= dbinom(non_pregnant[preg_obs_idx[i]], all_women[preg_obs_idx[i]], prevalence_preg[preg_obs_idx[i]], true);
+    }
+
+
   REPORT(beta_hiv);
   REPORT(beta_anc);
 
   REPORT(prevalence_hiv);
   REPORT(prevalence_anc);
+  REPORT(prevalence_preg);
 
-  ADREPORT(prevalence_hiv);
-  ADREPORT(prevalence_anc);
+  // ADREPORT(prevalence_hiv);
+  // ADREPORT(prevalence_anc);
 
   REPORT(b_hiv);
   REPORT(b_anc);
   REPORT(u_raw_space_race_hiv);
   REPORT(u_raw_space_race_anc);
 
-
-  ADREPORT(b_hiv);
-  ADREPORT(b_anc);
+  // ADREPORT(b_hiv);
+  // ADREPORT(b_anc);
   return val;
 }
