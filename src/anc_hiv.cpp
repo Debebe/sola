@@ -34,9 +34,7 @@ Type objective_function<Type>::operator() ()
 
   DATA_MATRIX(X);      //hiv prev predictor
   DATA_MATRIX(Xanc);   //anc_place predictor
-
-  DATA_MATRIX(Xpreg);   //anc_place predictor
-
+  DATA_MATRIX(Xpreg);   //pregnancy predictor
 
 
   DATA_IVECTOR(anc_obs_idx);                          // !Index to data with no NAs
@@ -67,8 +65,6 @@ Type objective_function<Type>::operator() ()
   PARAMETER_VECTOR(beta_hiv);
   PARAMETER_VECTOR(beta_anc);
   PARAMETER_VECTOR(beta_preg);
-
-
 
   //••••Space-BYM2- hiv model•••••//
   PARAMETER(log_sigma_space_hiv);                                                   // marginal standard deviation
@@ -166,7 +162,6 @@ Type objective_function<Type>::operator() ()
     val -= dnorm(u_raw_space_race_anc.col(i).sum(), Type(0), Type(0.001) * u_raw_space_race_anc.col(i).size(), true);
   }
 
-
   ///////////////////////////////////////////////////////
   /////////   space(ICAR)-race -interaction-preg model////////////
   ///////////////////////////////////////////////////////
@@ -185,8 +180,6 @@ Type objective_function<Type>::operator() ()
   for (int i = 0; i < u_raw_space_race_preg.cols(); i++) {
     val -= dnorm(u_raw_space_race_preg.col(i).sum(), Type(0), Type(0.001) * u_raw_space_race_preg.col(i).size(), true);
   }
-
-
 
   // hiv model -likelihood
 
@@ -210,7 +203,6 @@ Type objective_function<Type>::operator() ()
      val -= dbinom(anc_private[anc_obs_idx[i]], anc_attended[anc_obs_idx[i]], prevalence_anc[anc_obs_idx[i]], true);
   }
 
-
     // preg model- likelihood
     vector<Type> mu_preg(Xpreg*beta_preg +
                         Z_space_preg *b_preg +
@@ -224,6 +216,7 @@ Type objective_function<Type>::operator() ()
 
   REPORT(beta_hiv);
   REPORT(beta_anc);
+  REPORT(beta_preg);
 
   REPORT(prevalence_hiv);
   REPORT(prevalence_anc);
