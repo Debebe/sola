@@ -1,4 +1,4 @@
-all: MI00.dll MI01.dll vls.dll anc_hiv.dll hiv_anc.dll
+all: MI00.dll MI01.dll vls.dll anc_hiv.dll  multinom_wom.dll hiv_anc.dll
 	# Comment here preserves the prior tab
 MI00.dll: MI00.cpp
 	Rscript --vanilla -e "TMB::compile('MI00.cpp', '-O1 -g',DLLFLAGS='')"
@@ -8,9 +8,9 @@ vls.dll: vls.cpp
 	Rscript --vanilla -e "TMB::compile('vls.cpp', '-O1 -g',DLLFLAGS='')"
 anc_hiv.dll: anc_hiv.cpp
 	Rscript --vanilla -e "TMB::compile('anc_hiv.cpp', '-O1 -g',DLLFLAGS='')"
-
+multinom_wom.dll: multinom_wom.cpp
+		Rscript --vanilla -e "TMB::compile('multinom_wom.cpp', '-O1 -g',DLLFLAGS='')"
 hiv_anc.dll: hiv_anc.cpp
 	Rscript --vanilla -e "TMB::compile('hiv_anc.cpp', '-O1 -g',DLLFLAGS='')"
-
 clean:
 	rm -rf *.dll
