@@ -1,4 +1,5 @@
 
+
 #include <TMB.hpp>
 template<class Type>
 Type bym2_conditional_lpdf(const vector<Type> b,
@@ -39,21 +40,54 @@ Type objective_function<Type>::operator() ()
   
   //••••Space-BYM2- hiv model•••••//
   DATA_SPARSE_MATRIX(Q_space);
-  DATA_SPARSE_MATRIX(Z_space);
-  PARAMETER(log_sigma_space);                                                   // marginal standard deviation
-  PARAMETER(logit_phi_space);
-  PARAMETER_VECTOR(b);                                                          // combined spatial effect
-  PARAMETER_VECTOR(u);
+  DATA_SPARSE_MATRIX(Z_space1);
+  DATA_SPARSE_MATRIX(Z_space2);
+  DATA_SPARSE_MATRIX(Z_space3);
+  
+  
+  
+  PARAMETER(log_sigma_space1);                                                   // marginal standard deviation
+  PARAMETER(logit_phi_space1);
+  PARAMETER(log_sigma_space2);                                                   // marginal standard deviation
+  PARAMETER(logit_phi_space2);
+  PARAMETER(log_sigma_space3);                                                   // marginal standard deviation
+  PARAMETER(logit_phi_space3);
+  
+  PARAMETER_VECTOR(b1);                                                          // combined spatial effect
+  PARAMETER_VECTOR(u1);
+  PARAMETER_VECTOR(b2);                                                          // combined spatial effect
+  PARAMETER_VECTOR(u2);
+  PARAMETER_VECTOR(b3);                                                          // combined spatial effect
+  PARAMETER_VECTOR(u3);
 
-  Type sigma_space(exp(log_sigma_space));
-  nll -= dnorm(sigma_space, Type(0.0), Type(1.0), true) + log_sigma_space;      // log_sigma: log-absolute Jacobian of exp(log_sigma)
+  Type sigma_space1(exp(log_sigma_space1));
+  nll -= dnorm(sigma_space1, Type(0.0), Type(1.0), true) + log_sigma_space1;      // log_sigma: log-absolute Jacobian of exp(log_sigma)
 
-  Type phi_space(invlogit(logit_phi_space));
-  nll -= log(phi_space) +  log(1 - phi_space);                                  // change of variables: logit_phi -> phi
-  nll -= dbeta(phi_space, Type(0.5), Type(0.5), true);
-  nll -= dnorm(sum(b), Type(0.0), Type(0.001) * b.size(), true);                // soft sum-to-zero constraint
-  nll -= bym2_conditional_lpdf(b, u, sigma_space, phi_space, Q_space);
+  Type phi_space1(invlogit(logit_phi_space1));
+  nll -= log(phi_space1) +  log(1 - phi_space1);                                  // change of variables: logit_phi -> phi
+  nll -= dbeta(phi_space1, Type(0.5), Type(0.5), true);
+  nll -= dnorm(sum(b1), Type(0.0), Type(0.001) * b1.size(), true);                // soft sum-to-zero constraint
+  nll -= bym2_conditional_lpdf(b1, u1, sigma_space1, phi_space1, Q_space);
 
+  
+  Type sigma_space2(exp(log_sigma_space2));
+  nll -= dnorm(sigma_space2, Type(0.0), Type(1.0), true) + log_sigma_space2;      // log_sigma: log-absolute Jacobian of exp(log_sigma)
+  Type phi_space2(invlogit(logit_phi_space2));
+  nll -= log(phi_space2) +  log(1 - phi_space2);                                  // change of variables: logit_phi -> phi
+  nll -= dbeta(phi_space2, Type(0.5), Type(0.5), true);
+  nll -= dnorm(sum(b2), Type(0.0), Type(0.001) * b2.size(), true);                // soft sum-to-zero constraint
+  nll -= bym2_conditional_lpdf(b2, u2, sigma_space2, phi_space2, Q_space);
+  
+  
+  Type sigma_space3(exp(log_sigma_space3));
+  nll -= dnorm(sigma_space3, Type(0.0), Type(1.0), true) + log_sigma_space3;      // log_sigma: log-absolute Jacobian of exp(log_sigma)
+  Type phi_space3(invlogit(logit_phi_space3));
+  nll -= log(phi_space3) +  log(1 - phi_space3);                                  // change of variables: logit_phi -> phi
+  nll -= dbeta(phi_space3, Type(0.5), Type(0.5), true);
+  nll -= dnorm(sum(b3), Type(0.0), Type(0.001) * b3.size(), true);                // soft sum-to-zero constraint
+  nll -= bym2_conditional_lpdf(b3, u3, sigma_space3, phi_space3, Q_space);
+  
+  
 // risk for district-age-sex combo
   Type risk1=0;
   Type risk2=0;
@@ -64,14 +98,13 @@ Type objective_function<Type>::operator() ()
   vector<Type> prob(Y.cols());
   matrix<Type> proportion(Y.rows(), Y.cols());
   
-  
   vector<Type> log_risk1(Y.rows());
   vector<Type> log_risk2(Y.rows());
   vector<Type> log_risk3(Y.rows());
   
-  log_risk1=(X*beta1+Z_space * b);
-  log_risk2=(X*beta2+Z_space * b);
-  log_risk3=(X*beta3+Z_space * b);
+  log_risk1=(X*beta1+Z_space1 * b1);
+  log_risk2=(X*beta2+Z_space2 * b2);
+  log_risk3=(X*beta3+Z_space3 * b3);
   
   vector<Type> r1(exp(log_risk1));
   vector<Type> r2(exp(log_risk2));
@@ -89,19 +122,23 @@ Type objective_function<Type>::operator() ()
     prob(1)=risk2/level;
     prob(2)=risk3/level;
     prob(3)=1 - prob(0) - prob(1)-prob(2);
+
     y=Y.row(i);
     if(!isNA(y(0))) nll -= dmultinom(y, prob, true);
     //nll -= dmultinom(y, prob, true);
     proportion.row(i) = prob;
     REPORT(prob);
-    
   }
   
   REPORT(beta1);
   REPORT(beta2);
+  REPORT(beta3);
+
+
   REPORT(proportion);
   return nll;
 }
+
 
 // dyn.load(dynlib("multinom_test"))
 //   Y= as.matrix(DT[, 7:10])
