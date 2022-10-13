@@ -38,7 +38,7 @@ Type objective_function<Type>::operator() ()
   
   Type nll=0;
   
-  //••••Space-BYM2- hiv model•••••//
+  //••••Space-BYM2- •••••//
   DATA_SPARSE_MATRIX(Q_space);
   DATA_SPARSE_MATRIX(Z_space1);
   DATA_SPARSE_MATRIX(Z_space2);
@@ -61,10 +61,10 @@ Type objective_function<Type>::operator() ()
   PARAMETER_VECTOR(u3);
 
   Type sigma_space1(exp(log_sigma_space1));
-  nll -= dnorm(sigma_space1, Type(0.0), Type(1.0), true) + log_sigma_space1;      // log_sigma: log-absolute Jacobian of exp(log_sigma)
+  nll -= dnorm(sigma_space1, Type(0.0), Type(1.0), true) + log_sigma_space1;     
 
   Type phi_space1(invlogit(logit_phi_space1));
-  nll -= log(phi_space1) +  log(1 - phi_space1);                                  // change of variables: logit_phi -> phi
+  nll -= log(phi_space1) +  log(1 - phi_space1);                                  
   nll -= dbeta(phi_space1, Type(0.5), Type(0.5), true);
   nll -= dnorm(sum(b1), Type(0.0), Type(0.001) * b1.size(), true);                // soft sum-to-zero constraint
   nll -= bym2_conditional_lpdf(b1, u1, sigma_space1, phi_space1, Q_space);
@@ -88,7 +88,7 @@ Type objective_function<Type>::operator() ()
   nll -= bym2_conditional_lpdf(b3, u3, sigma_space3, phi_space3, Q_space);
   
   
-// risk for district-age-sex combo
+// risk for district-age-race-survey combo
   Type risk1=0;
   Type risk2=0;
   Type risk3=0;

@@ -164,18 +164,18 @@ Type objective_function<Type>::operator() ()
 
   // anc_place(IID)*age(rw1)
 
-  DATA_SPARSE_MATRIX(Z_agegroup_ancplace);
-  DATA_SPARSE_MATRIX(R_agegroup);
-  DATA_SPARSE_MATRIX(R_ancplace);
+  // DATA_SPARSE_MATRIX(Z_agegroup_ancplace);
+  // DATA_SPARSE_MATRIX(R_agegroup);
+  // DATA_SPARSE_MATRIX(R_ancplace);
   
-  PARAMETER(log_prec_agegroup_ancplace);
-  PARAMETER_ARRAY(u_raw_agegroup_ancplace);
+  // PARAMETER(log_prec_agegroup_ancplace);
+  // PARAMETER_ARRAY(u_raw_agegroup_ancplace);
 
 
-  val -= dlgamma(log_prec_agegroup_ancplace, Type(0.001), Type(1.0 / 0.001), true);
-  Type sigma_agegroup_ancplace(exp(-0.5 * log_prec_agegroup_ancplace));
-  vector<Type> u_agegroup_ancplace(u_raw_agegroup_ancplace * sigma_agegroup_ancplace);
-  val += SEPARABLE(GMRF(R_agegroup), GMRF(R_ancplace))(u_raw_agegroup_ancplace);
+  // val -= dlgamma(log_prec_agegroup_ancplace, Type(0.001), Type(1.0 / 0.001), true);
+  // Type sigma_agegroup_ancplace(exp(-0.5 * log_prec_agegroup_ancplace));
+  // vector<Type> u_agegroup_ancplace(u_raw_agegroup_ancplace * sigma_agegroup_ancplace);
+  // val += SEPARABLE(GMRF(R_agegroup), GMRF(R_ancplace))(u_raw_agegroup_ancplace);
 
 
 
@@ -225,8 +225,8 @@ Type objective_function<Type>::operator() ()
   vector<Type> mu_hiv(X*beta_hiv +
                       Z_space_hiv * b_hiv +
                       Z_space_race_hiv * u_space_race_hiv +
-                      Z_space_ancplace_hiv * u_space_ancplace_hiv+
-                      Z_agegroup_ancplace * u_agegroup_ancplace);
+                      Z_space_ancplace_hiv * u_space_ancplace_hiv);
+                      //Z_agegroup_ancplace * u_agegroup_ancplace);
 
   vector <Type> prevalence_hiv(invlogit(mu_hiv));
 
@@ -262,9 +262,6 @@ Type objective_function<Type>::operator() ()
   REPORT(prevalence_hiv);
   REPORT(prevalence_anc);
   REPORT(prevalence_preg);
-
-  // ADREPORT(prevalence_hiv);
-  // ADREPORT(prevalence_anc);
 
   REPORT(b_hiv);
   REPORT(b_anc);
