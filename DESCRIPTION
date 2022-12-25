@@ -1,6 +1,7 @@
 Package: sola
 Title: The package provides several helper functions and compiles tmb functions
-Version: 0.0.0.9000
+#Version: 0.0.0.9000
+Version: 1.0.0.0000
 Authors@R: 
     person("Debebe", "Shaweno", , "debebesh@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-9596-5443"))
