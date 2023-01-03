@@ -353,29 +353,39 @@ Type objective_function<Type>::operator() ()
                   Z_time_sex * u_time_sex +
                   Z_time_age * u_time_age +
 
-                   Z_space_time * u_space_time+
-                   Z_age_space_time*u_age_space_time +
+                  Z_space_time * u_space_time+
+                  Z_age_space_time*u_age_space_time +
 
                   Z_space_sex_age  * u_space_sex_age +
                   Z_space_sex_time * u_space_sex_time);
 
   vector <Type> prevalence(invlogit(mu));
 
-  for (int i = 0; i < obs_idx.size(); i++) {                                   // index to complete data
-     val -= dbinom(Y[obs_idx[i]], N[obs_idx[i]], prevalence[obs_idx[i]], true);
+// for (int i = 0; i < obs_idx.size(); i++) {                                   // index to complete data
+//    val -= dbinom(Y[obs_idx[i]], N[obs_idx[i]], prevalence[obs_idx[i]], true);
+// }
+
+   vector <Type> pointwise_ll(Y.size());
+
+  for (int i = 0; i < Y.size(); i++) {
+    if (Y[i] != Y[i]) { // f!= f returns true if and only if f is NaN.
+      pointwise_ll(i) = Type(0.0);
+    }
+    else {
+      pointwise_ll(i) = dbinom(Y[i], N[i], prevalence[i], true);
+    }
   }
+  val -= sum(pointwise_ll);
 
   // This one is also works- but if using the following comment out obs_idx in the data declaration section
-
   // for( int i=0; i<Y.size(); i++){
   //   if( !isNA(Y(i)) ) val -= dbinom(Y[i], N[i], prevalence[i], true);      //
   // }
 
-
   REPORT(beta);
   REPORT(prevalence);
-  ADREPORT(prevalence);
-  ADREPORT(mu);
+  REPORT(pointwise_ll);
+
 
   return val;
 }
