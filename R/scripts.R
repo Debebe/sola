@@ -267,6 +267,16 @@ sample_tmb <- function(fit, nsample = 100, rng_seed = NULL,
   fit
 }
 
+#' Title
+#'
+#' @param n Number of posterior samples
+#' @param mean
+#' @param prec
+#'
+#' @return
+#' @export
+#'
+#' @examples
 rmvnorm_sparseprec <- function(n, mean = rep(0, nrow(prec)), prec = diag(lenth(mean))) {
 
   z = matrix(rnorm(n * length(mean)), ncol = n)
