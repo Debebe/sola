@@ -84,6 +84,9 @@ Type objective_function<Type>::operator() ()
   if(u_age.size() > 0)
     val += SCALE(AR1(phi_age), sigma_age)(u_age);
 
+  // Sum to zero constraint
+  val -= dnorm(u_age.sum(), Type(0), Type(0.001) * u_age.size(), TRUE);
+
    ///////////////////////////////////////////////////////
    /////////   space-age -interaction   //////////////////
    ///////////////////////////////////////////////////////
@@ -134,6 +137,9 @@ Type objective_function<Type>::operator() ()
    if(u_age_sex.size() > 0)
     val += SCALE(AR1(phi_age_sex), sigma_age_sex)(u_age_sex);
 
+   // Sum to zero constraint
+   val -= dnorm(u_age_sex.sum(), Type(0), Type(0.001) * u_age_sex.size(), TRUE);
+
      ///////////////////////////////////////////////////////
     /////////   ICAR-sex(fixed) -interaction   ////////////
    ///////////////////////////////////////////////////////
@@ -168,6 +174,9 @@ Type objective_function<Type>::operator() ()
    if(u_time.size() > 0)
     val += SCALE(AR1(phi_time), sigma_time)(u_time);
 
+   val -= dnorm(u_time.sum(), Type(0), Type(0.001) * u_time.size(), TRUE);
+
+
    ////////////////////////////////////////////////////////
    /////////   year(AR1)-sex interaction       ///////////
    ///////////////////////////////////////////////////////
@@ -184,6 +193,8 @@ Type objective_function<Type>::operator() ()
 
    if(u_time_sex.size() > 0)
     val += SCALE(AR1(phi_time_sex), sigma_time_sex)(u_time_sex);
+
+   val -= dnorm(u_time_sex.sum(), Type(0), Type(0.001) * u_time_sex.size(), TRUE);
 
 
     ////////////////////////////////////////////////////////
@@ -205,15 +216,16 @@ Type objective_function<Type>::operator() ()
    Type phi_timex (2.0 * invlogit(logit_phi_timex) - 1.0);
    Type phi_agex (2.0 * invlogit(logit_phi_agex) - 1.0);
 
-   for (int i = 0; i < u_raw_time_age.cols(); i++) {
-    val -= dnorm(u_raw_time_age.col(i).sum(), Type(0), Type(0.001) * u_raw_time_age.col(i).size(), true);
-    }
 
-  vector<Type> u_time_age(u_raw_time_age * sigma_time_age);
+   vector<Type> u_time_age(u_raw_time_age * sigma_time_age);
 
    if(u_raw_time_age.size() > 0)
    val += SEPARABLE(AR1(phi_agex), AR1(phi_timex))(u_raw_time_age);
-
+   
+    // sum-to-0 constraint
+   for (int i = 0; i < u_raw_time_age.cols(); i++) {
+      val -= dnorm(u_raw_time_age.col(i).sum(), Type(0), Type(0.001) * u_raw_time_age.col(i).size(), true);
+    }
      ///////////////////////////////////////////////////////
     /////////   space-time interaction          ///////////
    ///////////////////////////////////////////////////////
@@ -334,10 +346,9 @@ Type objective_function<Type>::operator() ()
 
   //sum-to-zero- constraint on interaction term
    for (int i = 0; i < u_raw_space_sex_time.cols(); i++) {
-    val -= dnorm(u_raw_space_time.col(i).sum(), Type(0), Type(0.001) * u_raw_space_time.rows(), true); //gives NA/NAN warinng
+    val -= dnorm(u_raw_space_sex_time.col(i).sum(), Type(0), Type(0.001) * u_raw_space_sex_time.rows(), true);
 
    }
-
 
   // model
   vector<Type> mu(X*beta +
