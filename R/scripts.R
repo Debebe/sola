@@ -285,4 +285,120 @@ rmvnorm_sparseprec <- function(n, mean = rep(0, nrow(prec)), prec = diag(lenth(m
   as.matrix(Matrix::t(v))
 }
 
+#' Title
+#'
+#' @param tmbdata List data inputs to TMB
+#' @param tmbpar  list of parameters to TMB
+#' @param random_pars Random parameters
+#' @param dll  Dynamic library
+#'
+#' @return
+#' @export
+#'
+#' @examples
+run_tmb <- function(tmbdata, tmbpar, random_pars, dll) {
+  obj <- TMB::MakeADFun(data = tmbdata,
+                        parameters = tmbpar,
+                        random = random_pars,
+                        #map = mapp,
+                        DLL = dll)
+
+  tmbfit <- nlminb(obj$par, obj$fn, obj$gr)
+  sdr    <- TMB::sdreport(obj)
+
+  # calculate BIC/AIC
+  np   <- length(unlist(tmbpar))
+  mllk <- tmbfit$objective
+  AIC  <- 2 * (mllk + np)
+  n    <- sum(!is.na(tmbdata$Y))
+  BIC  <- 2 * mllk + np * log(n)
+  return(out= list(sdr=sdr, AIC=AIC, BIC=BIC, mllk=mllk))
+
+}
+
+
+
+#' Title
+#'
+#' @param formula Formula for INLA
+#' @param data   data.frame with response variable and predictors
+#' @param verbose
+#'
+#' @return
+#' @export
+#'
+#' @examples
+run_inla  <- function(formula, data, verbose = TRUE){
+  out <- inla(formula,
+              family = "binomial",
+              control.compute = list(dic = TRUE, waic = TRUE, config=TRUE), #config for later simulation
+              Ntrials = vl_done,
+              inla.mode = "experimental",
+              data = data,
+              control.inla = list(strategy = "gaussian", int.strategy = "eb"),
+              control.predictor = list(link = 1),
+              # control.fixed=list(mean=0,
+              #                    prec=1/25,
+              #                    mean.intercept=0,
+              #                    prec.intercept=1/25),
+              verbose = verbose)
+  out
+}
+
+
+
+
+#' Title
+#'
+#' @param inla_fit Model outputs from INLA
+#' @param tmb_fit Model outputs from INLA
+#'
+#' @return
+#' @export
+#'
+#' @examples
+output_fixed_effects <- function(inla_fit, tmb_fit) {
+
+  inla <- data.table(inla_fit[["summary.fixed"]][, c("mean", "sd")], keep.rownames = TRUE)[]%>%
+    mutate(model= "INLA") %>%
+    mutate(mean= round(mean, 4),
+           sd= round(sd,4))%>%
+    mutate(Predictors= colnames(tmbdata$X))%>%
+    dplyr::select(Predictors,"mean-INLA"=mean, "sd-INLA"=sd)
+
+  #tmb
+  tmb <- data.table(summary(tmb_fit$sdr, "random"), keep.rownames = TRUE)[]%>%
+    filter(rn %in% c("beta")) %>%
+    mutate(model= "TMB")%>%
+    mutate(Predictors= colnames(tmbdata$X))%>%
+    dplyr::select(Predictors,`mean-TMB`=Estimate, `sd-TMB`="Std. Error")%>%
+    mutate(`mean-TMB`= round(`mean-TMB`, 4),
+           `sd-TMB`= round(`sd-TMB`,4))
+
+
+  both <-inner_join(tmb, inla)%>%
+    mutate(DIC= round(inla_fit$dic$dic,0),
+           WAIC=round(inla_fit$waic$waic, 0),
+           #WAIC=NA,
+           AIC= round(tmb_fit$AIC, 0),
+           BIC= round(tmb_fit$BIC, 0))%>%
+    # This helps to remove replicated DIC values and uses empty space
+    # is handy for kable
+    mutate(DIC= ifelse(Predictors=="(Intercept)", DIC, " "),
+           WAIC= ifelse(Predictors=="(Intercept)",WAIC, " "),
+           AIC= ifelse(Predictors=="(Intercept)", AIC, " "),
+           BIC= ifelse(Predictors=="(Intercept)", BIC, " "),
+    )
+
+
+  both%>%
+    #kbl(col.names = c("Predictors", "Mean", "SD", "Mean", "SD", "DIC", "WAIC"))  %>%
+    knitr::kable(col.names = c("Predictors", "Mean", "SD", "Mean", "SD", "DIC", "WAIC", "AIC", "BIC"))  %>%
+    kable_classic(full_width = F, html_font = "Cambria") %>%
+    #collapse_rows(column = 1:2) %>%
+    add_header_above(c(" " = 1, "TMB" = 2, "INLA" = 2, " "=1, " "=1, " "=1, " "=1))
+
+}
+
+
 
