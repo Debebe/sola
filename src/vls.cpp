@@ -290,7 +290,7 @@ Type objective_function<Type>::operator() ()
 
    // sum-to-zero constraint
 
-   // val -= dnorm(u_raw_age_space_time.sum(), Type(0), Type(0.001) * u_raw_age_space_time.size(), TRUE);
+   val -= dnorm(u_raw_age_space_time.sum(), Type(0), Type(0.001) * u_raw_age_space_time.size(), TRUE);
 
 
      ///////////////////////////////////////////////////////
