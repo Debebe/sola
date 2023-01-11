@@ -230,7 +230,6 @@ Type objective_function<Type>::operator() ()
     /////////   space-time interaction          ///////////
    ///////////////////////////////////////////////////////
 
-
    DATA_SPARSE_MATRIX(Z_space_time);
    PARAMETER(log_sigma_space_time);
    PARAMETER(logit_rho_space_time);
