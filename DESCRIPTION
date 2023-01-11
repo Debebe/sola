@@ -15,7 +15,7 @@ Imports:
       TMB, 
       ggplot2,
       dplyr,
-      zoo, sf, spdep
+      zoo, sf, spdep,kableExtra
 Suggests: 
     knitr,
     rmarkdown
