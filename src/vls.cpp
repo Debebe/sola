@@ -258,7 +258,6 @@ Type objective_function<Type>::operator() ()
      val -= dnorm(u_raw_space_time.col(i).sum(), Type(0), Type(0.001) * u_raw_space_time.rows(), true);
    }
 
-
    /////////////////////////////////////////////
    /// Prior on the three way random effects ///
    /////////////////////////////////////////////
