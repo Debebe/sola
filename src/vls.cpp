@@ -395,6 +395,20 @@ Type objective_function<Type>::operator() ()
   REPORT(prevalence);
   REPORT(pointwise_ll);
 
+  REPORT(b);
+  REPORT(u);
+  REPORT(u_raw_space_age);
+  REPORT(u_age);
+  REPORT(u_age_sex);   
+  REPORT(u_time_sex);
+  REPORT(u_space_sex);
+  REPORT(u_raw_time_age);
+  REPORT(u_time);
+  REPORT(u_raw_space_time);
+  REPORT(u_raw_age_space_time);
+  REPORT(u_raw_space_sex_age);
+  REPORT(u_raw_space_sex_time);
+
 
   return val;
 }
